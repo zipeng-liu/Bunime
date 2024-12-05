@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Button } from './components/ui/button'
 import './App.css'
 
 function App() {
@@ -6,13 +7,13 @@ function App() {
 
   return (
     <>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
+      <div className="flex flex-col bg-background max-w-md m-auto gap-y-5">
+        <Button onClick={() => setCount((count) => count + 1)}>
           up
-        </button>
-        <button onClick={() => setCount((count) => count - 1)}>
+        </Button>
+        <Button onClick={() => setCount((count) => count - 1)}>
           down
-        </button>
+        </Button>
         <p>
           {count}
         </p>
