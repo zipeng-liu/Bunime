@@ -6,7 +6,7 @@ export const watchlistRoute = new Hono()
     return c.json({ watchlist: fakeWatchlist });
   })
   .post("/", async (c) => {
-    const watchlist = await c.res.json();
+    const watchlist = await c.req.json();
     console.log({ watchlist });
     return c.json(watchlist);
   });
