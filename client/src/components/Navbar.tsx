@@ -13,10 +13,10 @@ export const Navbar = () => {
         {/* Navigation Links */}
         <div className="flex items-center space-x-4">
           <Button variant="ghost" asChild>
-            <Link to="/search">Search</Link>
+            <Link to="/popular">Popular Anime</Link>
           </Button>
           <Button variant="ghost" asChild>
-            <Link to="/profile">Profile</Link>
+            <Link to="/search">Search</Link>
           </Button>
         </div>
       </div>
