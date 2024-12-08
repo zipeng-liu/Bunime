@@ -149,6 +149,8 @@ import { Card } from "./components/ui/card";
 import { AnimeDialog } from "./components/AnimeDialog"; 
 import "./App.css";
 
+import { api } from "@/lib/api";
+
 type Anime = {
   mal_id: number;
   images: {
@@ -203,6 +205,15 @@ function App() {
   useEffect(() => {
     fetch("/api/watchlist")
   }, [])
+
+  // useEffect(() => {
+  //   async function fetchTotal() {
+  //     const res = await client.api.expenses["total-spent"].$get()
+  //     const data = await res.json()
+  //     setTotalSpent(data.total)
+  //   }
+  //   fetchTotal()
+  // }, [])
 
   return (
     <div className="min-h-screen bg-background text-foreground">
