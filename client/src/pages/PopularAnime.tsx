@@ -22,6 +22,7 @@ type Anime = {
   status: string;
   rating: string;
   duration: string;
+  type: string;
 };
 
 const PopularAnime = () => {

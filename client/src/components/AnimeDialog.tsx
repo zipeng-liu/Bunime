@@ -21,6 +21,7 @@ type AnimeDialogProps = {
     status: string;
     rating: string;
     duration: string;
+    type: string; // Added to display the anime type
   } | null;
   isOpen: boolean;
   onClose: () => void;
@@ -58,6 +59,7 @@ export const AnimeDialog: React.FC<AnimeDialogProps> = ({
         {/* Anime Details */}
         <div className="grid grid-cols-2 gap-4">
           <div>
+            <p><strong>Type:</strong> {animeInfo.type}</p> {/* Display anime type */}
             <p><strong>Source:</strong> {animeInfo.source}</p>
             <p><strong>Rank:</strong> {animeInfo.rank}</p>
             <p><strong>Score:</strong> {animeInfo.score}</p>
