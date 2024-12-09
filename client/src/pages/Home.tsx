@@ -1,5 +1,3 @@
-// src/pages/Home.tsx
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Navbar } from "@/components/Navbar";
@@ -7,10 +5,11 @@ import WatchlistCard from "@/components/WatchlistCard";
 import { AnimeDialog } from "@/components/AnimeDialog";
 import { Anime } from "@/types/anime";
 import { Watchlist } from "@server/types/watchlist";
+import { api } from "@/lib/api";
 
 // Fetch watchlist data
 const fetchWatchlist = async (userId: number): Promise<Watchlist[]> => {
-  const res = await fetch(`/api/watchlist?user_id=${userId}`);
+  const res = await api.watchlist.$get({ query: { user_id: userId } });
   const data = await res.json();
   return data.watchlist;
 };

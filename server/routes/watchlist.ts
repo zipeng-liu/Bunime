@@ -8,19 +8,11 @@ export const watchlistRoute = new Hono()
   .get("/", (c) => {
     const userId = c.req.query("user_id");
 
-    if (!userId) {
-      return c.json({ error: "User ID is required" }, 400);
-    }
-
     const userWatchlist = fakeWatchlist.filter(
       (item) => item.user_id === Number(userId)
     );
 
-    if (userWatchlist.length === 0) {
-      return c.json({ message: "No watchlist items found for this user" }, 404);
-    }
-
-    return c.json({ watchlist: userWatchlist });
+    return c.json({ watchlist: userWatchlist }, 200);
   })
 
   // POST a new watchlist item
