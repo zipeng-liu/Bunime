@@ -102,7 +102,12 @@ function Index() {
                 anime={anime}
                 onRemove={removeFromWatchlist}
                 onOpenDialog={openDialog}
-                onEdit={() => openEditDialog(anime)}
+                onEdit={() => {
+                  const watchlistItem = watchlist.find(
+                    (item) => item.anime_id === anime.mal_id
+                  );
+                  if (watchlistItem) openEditDialog(watchlistItem);
+                }}
               />
             ))}
           </div>
@@ -124,6 +129,13 @@ function Index() {
       <EditAnimeDialog
         isOpen={isEditDialogOpen}
         onClose={closeEditDialog}
+        onSubmit={(formData) => {
+          console.log("Updated data:", {
+            ...selectedWatchlistItem,
+            ...formData,
+          });
+          closeEditDialog();
+        }}
       />
     </div>
   );
