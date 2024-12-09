@@ -4,26 +4,7 @@ import { Input } from "../components/ui/input";
 import { Card } from "../components/ui/card";
 import { AnimeDialog } from "../components/AnimeDialog";
 import { Navbar } from "../components/Navbar";
-
-// Jikan API anime type
-type Anime = {
-  mal_id: number;
-  images: {
-    jpg: {
-      image_url: string;
-      large_image_url: string;
-    };
-  };
-  title: string;
-  source: string;
-  rank: number;
-  score: number;
-  popularity: number;
-  members: number;
-  status: string;
-  rating: string;
-  duration: string;
-};
+import { Anime } from "@/types/anime";
 
 const Search = () => {
   const [search, setSearch] = useState<string>(""); // User search input
@@ -31,17 +12,21 @@ const Search = () => {
   const [animeInfo, setAnimeInfo] = useState<Anime | null>(null); // Anime details for dialog
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false); // Dialog open state
   const [hasSearched, setHasSearched] = useState<boolean>(false); // Tracks if the user has searched
+  const [isLoading, setIsLoading] = useState<boolean>(false); // Loading state
 
   // Fetch anime data from the API
   const getAnimeData = async () => {
     if (!search.trim()) return; // Prevent empty searches
     try {
+      setIsLoading(true); // Start loading
       const res = await fetch(`https://api.jikan.moe/v4/anime?q=${search}&limit=25`);
       const data = await res.json();
       setAnimeData(data.data || []);
       setHasSearched(true); // Mark that a search has been performed
     } catch (error) {
       console.error("Error fetching anime data:", error);
+    } finally {
+      setIsLoading(false); // Stop loading
     }
   };
 
@@ -84,40 +69,59 @@ const Search = () => {
 
         {/* Anime Results */}
         <h2 className="text-2xl font-semibold mb-4">Search Results</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {animeData.length > 0 ? (
-            animeData.map((anime) => (
-              <Card key={anime.mal_id} className="p-4 flex flex-col justify-between">
-                <img
-                  src={anime.images.jpg.image_url}
-                  alt={anime.title}
-                  className="w-full h-64 object-cover rounded-lg mb-3"
-                />
-                <h3 className="font-semibold text-lg">{anime.title}</h3>
-                <div className="flex justify-between mt-3">
-                  <Button variant="outline" onClick={() => console.log("Add to Watchlist")}>
-                    Add to Watchlist
-                  </Button>
-                  <Button variant="outline" onClick={() => openDialog(anime)}>
-                    Info
-                  </Button>
-                </div>
-              </Card>
-            ))
-          ) : hasSearched ? (
-            <div className="flex justify-center items-center col-span-full h-[50vh]">
-              <p className="text-center text-muted-foreground">
-                No results found. Try searching for something else.
-              </p>
-            </div>
-          ) : (
-            <div className="flex justify-center items-center col-span-full h-[50vh]">
-              <p className="text-center text-muted-foreground">
-                Type in to search for something.
-              </p>
-            </div>
-          )}
-        </div>
+        {isLoading ? (
+          <div className="flex justify-center items-center col-span-full h-[50vh]">
+            <p className="text-center text-muted-foreground">Loading...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {animeData.length > 0 ? (
+              animeData.map((anime) => (
+                <Card
+                  key={anime.mal_id}
+                  className="p-4 flex flex-col justify-between bg-gray-800 rounded-lg shadow-lg"
+                >
+                  <img
+                    src={anime.images.jpg.image_url}
+                    alt={anime.title}
+                    className="w-full h-full object-cover rounded-lg mb-3"
+                  />
+                  <h3 className="font-semibold text-lg text-white text-center mb-3">
+                    {anime.title}
+                  </h3>
+                  <div className="flex justify-between mt-3">
+                    <Button
+                      variant="outline"
+                      className="text-white"
+                      onClick={() => console.log("Add to Watchlist")}
+                    >
+                      Add to Watchlist
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="text-white"
+                      onClick={() => openDialog(anime)}
+                    >
+                      Info
+                    </Button>
+                  </div>
+                </Card>
+              ))
+            ) : hasSearched ? (
+              <div className="flex justify-center items-center col-span-full h-[50vh]">
+                <p className="text-center text-muted-foreground">
+                  No results found. Try searching for something else.
+                </p>
+              </div>
+            ) : (
+              <div className="flex justify-center items-center col-span-full h-[50vh]">
+                <p className="text-center text-muted-foreground">
+                  Type in to search for something.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Dialog for Anime Details */}

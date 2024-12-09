@@ -21,6 +21,7 @@ type AnimeDialogProps = {
     status: string;
     rating: string;
     duration: string;
+    type: string; // Added to display the anime type
   } | null;
   isOpen: boolean;
   onClose: () => void;
@@ -52,12 +53,13 @@ export const AnimeDialog: React.FC<AnimeDialogProps> = ({
         <img
           src={animeInfo.images.jpg.large_image_url}
           alt={animeInfo.title}
-          className="w-full h-96 object-cover rounded-lg"
+          className="w-full h-full object-cover rounded-lg"
         />
 
         {/* Anime Details */}
         <div className="grid grid-cols-2 gap-4">
           <div>
+            <p><strong>Type:</strong> {animeInfo.type}</p> {/* Display anime type */}
             <p><strong>Source:</strong> {animeInfo.source}</p>
             <p><strong>Rank:</strong> {animeInfo.rank}</p>
             <p><strong>Score:</strong> {animeInfo.score}</p>
