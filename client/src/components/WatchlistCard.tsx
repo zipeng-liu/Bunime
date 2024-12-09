@@ -9,7 +9,7 @@ type WatchlistCardProps = {
   onOpenDialog: (anime: Anime & Watchlist) => void;
 };
 
-const WatchlistCard: React.FC<WatchlistCardProps> = ({ anime, onRemove, onOpenDialog }) => {
+export const WatchlistCard: React.FC<WatchlistCardProps> = ({ anime, onRemove, onOpenDialog }) => {
   return (
     <Card className="p-4 flex flex-col justify-between bg-gray-800 rounded-lg shadow-lg">
       <img
@@ -43,5 +43,3 @@ const WatchlistCard: React.FC<WatchlistCardProps> = ({ anime, onRemove, onOpenDi
     </Card>
   );
 };
-
-export default WatchlistCard;

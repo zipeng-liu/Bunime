@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Navbar } from "@/components/Navbar";
-import WatchlistCard from "@/components/WatchlistCard";
+import { WatchlistCard } from "@/components/WatchlistCard";
 import { AnimeDialog } from "@/components/AnimeDialog";
 import { Anime } from "@/types/anime";
 import { Watchlist } from "@server/types/watchlist";
@@ -10,6 +10,9 @@ import { api } from "@/lib/api";
 // Fetch watchlist data
 const fetchWatchlist = async (userId: number): Promise<Watchlist[]> => {
   const res = await api.watchlist.$get({ query: { user_id: userId } });
+  if (!res.ok) {
+    throw new Error("Server error");
+  }
   const data = await res.json();
   return data.watchlist;
 };
@@ -36,11 +39,16 @@ const Home = () => {
     queryKey: ["animeDetails", watchlist],
     queryFn: async () => {
       const animeDetails = await Promise.all(
-        watchlist.map((item) => fetchAnimeDetails(item.anime_id).then((anime) => ({ ...anime, ...item })))
+        watchlist.map((item) =>
+          fetchAnimeDetails(item.anime_id).then((anime) => ({
+            ...anime,
+            ...item,
+          }))
+        )
       );
       return animeDetails;
     },
-    enabled: watchlist.length > 0, // Only run when watchlist is loaded
+    enabled: watchlist.length > 0, 
   });
 
   const openDialog = (anime: Anime) => {
@@ -57,16 +65,19 @@ const Home = () => {
     console.log("Remove item:", id);
   };
 
-  if (isWatchlistLoading || isAnimeLoading) {
-    return <p className="text-center text-muted-foreground">Loading...</p>;
-  }
-
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
       <div className="max-w-4xl mx-auto px-4 py-6">
-        <h1 className="text-3xl font-bold text-center mb-6">Your Anime Watchlist</h1>
-        {animeData.length > 0 ? (
+        <h1 className="text-3xl font-bold text-center mb-6">
+          Your Anime Watchlist
+        </h1>
+        {(isWatchlistLoading || isAnimeLoading) && (
+          <div className="flex justify-center items-center col-span-full h-[50vh]">
+            <p className="text-center text-muted-foreground">Loading...</p>
+          </div>
+        )}
+        {!isWatchlistLoading && !isAnimeLoading && animeData.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {animeData.map((anime) => (
               <WatchlistCard
@@ -78,9 +89,12 @@ const Home = () => {
             ))}
           </div>
         ) : (
-          <p className="text-center text-muted-foreground">
-            No anime found in your watchlist. Add some to get started!
-          </p>
+          !isWatchlistLoading &&
+          !isAnimeLoading && (
+            <p className="text-center text-muted-foreground">
+              No anime found in your watchlist. Add some to get started!
+            </p>
+          )
         )}
       </div>
       <AnimeDialog
