@@ -1,79 +1,35 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import { z } from "zod";
-
-export const watchlistSchema = z.object({
-  id: z.number().int().positive(),
-  user_id: z.number().int().positive(),
-  anime_id: z.number().int().positive(),
-  current_episode: z.number().int().min(0),
-  current_season: z.number().int().min(1),
-  status: z.enum(["Not Started", "In Progress", "Completed", "Paused"]),
-  rating: z.number().min(0).max(10).nullable().optional(),
-});
-
-type Watchlist = z.infer<typeof watchlistSchema>;
-
-const addWatchlistSchema = watchlistSchema.omit({ id: true });
-
-export const fakeWatchlist: Watchlist[] = [
-  {
-    id: 1,
-    user_id: 101,
-    anime_id: 5114, // Fullmetal Alchemist: Brotherhood
-    current_episode: 15,
-    current_season: 1,
-    status: "In Progress",
-    rating: 9,
-  },
-  {
-    id: 2,
-    user_id: 101,
-    anime_id: 40028, // Jujutsu Kaisen
-    current_episode: 24,
-    current_season: 1,
-    status: "Completed",
-    rating: 10,
-  },
-  {
-    id: 3,
-    user_id: 102,
-    anime_id: 32281, // Your Name (Kimi no Na wa.)
-    current_episode: 1,
-    current_season: 1,
-    status: "Completed",
-    rating: 8,
-  },
-  {
-    id: 4,
-    user_id: 101,
-    anime_id: 16498, // Shingeki no Kyojin
-    current_episode: 5,
-    current_season: 1,
-    status: "Paused",
-    rating: null,
-  },
-  {
-    id: 5,
-    user_id: 103,
-    anime_id: 918, // Clannad
-    current_episode: 8,
-    current_season: 1,
-    status: "Not Started",
-    rating: null,
-  },
-];
+import { addWatchlistSchema } from "../types/watchlist";
+import { fakeWatchlist } from "../db/fakeDb";
 
 export const watchlistRoute = new Hono()
+  // GET watchlist items for a specific user
   .get("/", (c) => {
-    return c.json({ watchlist: fakeWatchlist });
+    const userId = c.req.query("user_id");
+
+    const userWatchlist = fakeWatchlist.filter(
+      (item) => item.user_id === Number(userId)
+    );
+
+    return c.json({ watchlist: userWatchlist }, 200);
   })
+
+  // POST a new watchlist item
   .post("/", zValidator("json", addWatchlistSchema), async (c) => {
     const watchlist = await c.req.valid("json");
-    fakeWatchlist.push({ ...watchlist, id: fakeWatchlist.length });
+
+    const newWatchlist = {
+      ...watchlist,
+      id: fakeWatchlist.length + 1, // Assign a unique ID
+    };
+
+    fakeWatchlist.push(newWatchlist);
     c.status(201);
-    return c.json(watchlist);
+    return c.json(newWatchlist);
   })
+
+  // GET a specific watchlist item by ID
   .get("/:id{[0-9]+}", (c) => {
     const id = Number.parseInt(c.req.param("id"));
     const watchlistItem = fakeWatchlist.find(
@@ -84,6 +40,8 @@ export const watchlistRoute = new Hono()
     }
     return c.json({ watchlistItem });
   })
+
+  // DELETE a specific watchlist item by ID
   .delete("/:id{[0-9]+}", (c) => {
     const id = Number.parseInt(c.req.param("id"));
     const index = fakeWatchlist.findIndex((watchlist) => watchlist.id === id);
