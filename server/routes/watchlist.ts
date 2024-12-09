@@ -1,21 +1,7 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import { z } from "zod";
-import { fakeWatchlist } from "../db/fakeDb"; 
-
-export const watchlistSchema = z.object({
-  id: z.number().int().positive(),
-  user_id: z.number().int().positive(),
-  anime_id: z.number().int().positive(),
-  progress: z.string().nullable().optional(), 
-  status: z.enum(["Not Started", "In Progress", "Completed", "Paused"]),
-  type: z.enum(["TV", "Movie", "OVA", "ONA", "Special"]), 
-});
-
-export type Watchlist = z.infer<typeof watchlistSchema>;
-
-const addWatchlistSchema = watchlistSchema.omit({ id: true });
-
+import { addWatchlistSchema } from "../types/watchlist";
+import { fakeWatchlist } from "../db/fakeDb";
 
 export const watchlistRoute = new Hono()
   // GET watchlist items for a specific user
@@ -23,7 +9,7 @@ export const watchlistRoute = new Hono()
     const userId = c.req.query("user_id");
 
     if (!userId) {
-      return c.json({ error: "User ID is required" }, 400); 
+      return c.json({ error: "User ID is required" }, 400);
     }
 
     const userWatchlist = fakeWatchlist.filter(
@@ -31,12 +17,11 @@ export const watchlistRoute = new Hono()
     );
 
     if (userWatchlist.length === 0) {
-      return c.json({ message: "No watchlist items found for this user" }, 404); 
+      return c.json({ message: "No watchlist items found for this user" }, 404);
     }
 
     return c.json({ watchlist: userWatchlist });
   })
-
 
   // POST a new watchlist item
   .post("/", zValidator("json", addWatchlistSchema), async (c) => {

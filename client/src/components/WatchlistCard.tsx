@@ -1,12 +1,12 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Anime } from "@/types/anime";
-import { WatchlistItem } from "@/types/watchlist";
+import { Watchlist } from "@server/types/watchlist";
 
 type WatchlistCardProps = {
-  anime: Anime & WatchlistItem;
+  anime: Anime & Watchlist;
   onRemove: (id: number) => void;
-  onOpenDialog: (anime: Anime & WatchlistItem) => void;
+  onOpenDialog: (anime: Anime & Watchlist) => void;
 };
 
 const WatchlistCard: React.FC<WatchlistCardProps> = ({ anime, onRemove, onOpenDialog }) => {

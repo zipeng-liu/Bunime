@@ -6,10 +6,10 @@ import { Navbar } from "@/components/Navbar";
 import WatchlistCard from "@/components/WatchlistCard";
 import { AnimeDialog } from "@/components/AnimeDialog";
 import { Anime } from "@/types/anime";
-import { WatchlistItem } from "@/types/watchlist";
+import { Watchlist } from "@server/types/watchlist";
 
 // Fetch watchlist data
-const fetchWatchlist = async (userId: number): Promise<WatchlistItem[]> => {
+const fetchWatchlist = async (userId: number): Promise<Watchlist[]> => {
   const res = await fetch(`/api/watchlist?user_id=${userId}`);
   const data = await res.json();
   return data.watchlist;
