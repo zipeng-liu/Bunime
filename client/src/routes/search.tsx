@@ -1,12 +1,16 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { useState } from "react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Card } from "../components/ui/card";
 import { AnimeDialog } from "../components/AnimeDialog";
-import { Navbar } from "../components/Navbar";
 import { Anime } from "@/types/anime";
 
-const Search = () => {
+export const Route = createFileRoute('/search')({
+  component: RouteComponent,
+})
+
+function RouteComponent() {
   const [search, setSearch] = useState<string>(""); // User search input
   const [animeData, setAnimeData] = useState<Anime[]>([]); // Anime search results
   const [animeInfo, setAnimeInfo] = useState<Anime | null>(null); // Anime details for dialog
@@ -51,9 +55,6 @@ const Search = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Navigation */}
-      <Navbar />
-
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Search Input and Buttons */}
         <div className="flex items-center gap-4 mb-6">
@@ -135,4 +136,5 @@ const Search = () => {
   );
 };
 
-export default Search;
+export default RouteComponent;
+
