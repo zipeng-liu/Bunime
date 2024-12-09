@@ -1,11 +1,15 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect } from "react";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
-import { Navbar } from "../components/Navbar";
 import { AnimeDialog } from "../components/AnimeDialog"; 
 import { Anime } from "@/types/anime";
 
-const PopularAnime = () => {
+export const Route = createFileRoute('/popular')({
+  component: RouteComponent,
+})
+
+function RouteComponent() {
   const [popularAnimes, setPopularAnimes] = useState<Anime[]>([]); // Store popular animes
   const [animeInfo, setAnimeInfo] = useState<Anime | null>(null); // Store selected anime info
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false); // Dialog open state
@@ -44,9 +48,6 @@ const PopularAnime = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Navbar */}
-      <Navbar />
-
       {/* Main Content */}
       <div className="flex-1 max-w-4xl mx-auto px-4 py-6">
         <h2 className="text-2xl font-semibold mb-4">Popular Animes</h2>
@@ -97,4 +98,5 @@ const PopularAnime = () => {
   );
 };
 
-export default PopularAnime;
+export default RouteComponent;
+
