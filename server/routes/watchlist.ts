@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import { addWatchlistSchema } from "../types/watchlist";
+import { addWatchlistSchema, updateWatchlistSchema } from "../types/watchlist";
 import { fakeWatchlist } from "../db/fakeDb";
 
 export const watchlistRoute = new Hono()
@@ -15,40 +15,26 @@ export const watchlistRoute = new Hono()
     return c.json({ watchlist: userWatchlist }, 200);
   })
 
-  // POST a new watchlist item
-  .post("/", zValidator("json", addWatchlistSchema), async (c) => {
-    const watchlist = await c.req.valid("json");
+  // POST: Update watchlist item status and progress
+  .post(
+    "/:id{[0-9]+}/update",
+    zValidator("json", updateWatchlistSchema),
+    async (c) => {
+      const id = Number.parseInt(c.req.param("id"));
+      const updateData = await c.req.valid("json");
 
-    const newWatchlist = {
-      ...watchlist,
-      id: fakeWatchlist.length + 1, // Assign a unique ID
-    };
+      const watchlistItem = fakeWatchlist.find((item) => item.id === id);
+      if (!watchlistItem) {
+        return c.notFound();
+      }
 
-    fakeWatchlist.push(newWatchlist);
-    c.status(201);
-    return c.json(newWatchlist);
-  })
+      // Update the status and progress fields
+      watchlistItem.status = updateData.status;
+      if (updateData.progress) {
+        watchlistItem.progress = updateData.progress;
+      }
 
-  // GET a specific watchlist item by ID
-  .get("/:id{[0-9]+}", (c) => {
-    const id = Number.parseInt(c.req.param("id"));
-    const watchlistItem = fakeWatchlist.find(
-      (watchlist) => watchlist.id === id
-    );
-    if (!watchlistItem) {
-      return c.notFound();
+      // Return a success message
+      return c.json({ message: "Watchlist item updated successfully." }, 204);
     }
-    return c.json({ watchlistItem });
-  })
-
-  // DELETE a specific watchlist item by ID
-  .delete("/:id{[0-9]+}", (c) => {
-    const id = Number.parseInt(c.req.param("id"));
-    const index = fakeWatchlist.findIndex((watchlist) => watchlist.id === id);
-    if (index === -1) {
-      return c.notFound();
-    }
-
-    const deletedWatchlistItem = fakeWatchlist.splice(index, 1)[0];
-    return c.json({ item: deletedWatchlistItem });
-  });
+  );

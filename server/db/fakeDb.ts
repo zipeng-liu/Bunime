@@ -1,4 +1,4 @@
-import type { Watchlist } from "../routes/watchlist";
+import type { Watchlist } from "../types/watchlist";
 
 export const fakeWatchlist: Watchlist[] = [
   {
