@@ -68,22 +68,23 @@ const PopularAnime = () => {
         <h2 className="text-2xl font-semibold mb-4">Popular Animes</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {popularAnimes.map((anime) => (
-            <Card key={anime.mal_id} className="p-4 flex flex-col justify-between">
-              <img
-                src={anime.images.jpg.image_url}
-                alt={anime.title}
-                className="w-full h-64 object-cover rounded-lg mb-3"
-              />
-              <h3 className="font-semibold text-lg">{anime.title}</h3>
-              <div className="flex justify-between mt-3">
-                <Button variant="outline" onClick={() => console.log("Add to Watchlist")}>
-                  Add to Watchlist
-                </Button>
-                <Button variant="outline" onClick={() => openDialog(anime)}>
-                  Info
-                </Button>
-              </div>
-            </Card>
+            <Card key={anime.mal_id} className="p-4 flex flex-col justify-between bg-gray-800 rounded-lg shadow-lg">
+            <img
+              src={anime.images.jpg.image_url}
+              alt={anime.title}
+              className="w-full h-full object-cover rounded-lg mb-3"
+            />
+            <h3 className="font-semibold text-lg text-white text-center mb-3">{anime.title}</h3>
+            <div className="flex justify-between mt-3">
+              <Button variant="outline" className="text-white" onClick={() => console.log("Add to Watchlist")}>
+                Add to Watchlist
+              </Button>
+              <Button variant="outline" className="text-white" onClick={() => openDialog(anime)}>
+                Info
+              </Button>
+            </div>
+          </Card>
+          
           ))}
         </div>
       </div>

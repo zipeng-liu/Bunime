@@ -53,7 +53,7 @@ export const AnimeDialog: React.FC<AnimeDialogProps> = ({
         <img
           src={animeInfo.images.jpg.large_image_url}
           alt={animeInfo.title}
-          className="w-full h-96 object-cover rounded-lg"
+          className="w-full h-full object-cover rounded-lg"
         />
 
         {/* Anime Details */}
