@@ -1,15 +1,16 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { WatchlistCard } from "@/components/WatchlistCard";
 import { AnimeDialog } from "@/components/AnimeDialog";
+import { EditAnimeDialog } from "@/components/EditAnimeDialog"; // Import the EditDialog component
 import { Anime } from "@/types/anime";
 import { Watchlist } from "@server/types/watchlist";
 import { api } from "@/lib/api";
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute("/")({
   component: Index,
-})
+});
 
 // Fetch watchlist data
 const fetchWatchlist = async (userId: number): Promise<Watchlist[]> => {
@@ -31,6 +32,9 @@ const fetchAnimeDetails = async (animeId: number): Promise<Anime> => {
 function Index() {
   const [animeInfo, setAnimeInfo] = useState<Anime | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false); // State for EditDialog
+  const [selectedWatchlistItem, setSelectedWatchlistItem] =
+    useState<Watchlist | null>(null); // Selected watchlist item to edit
 
   // Fetch watchlist using TanStack Query
   const { data: watchlist = [], isLoading: isWatchlistLoading } = useQuery({
@@ -52,7 +56,7 @@ function Index() {
       );
       return animeDetails;
     },
-    enabled: watchlist.length > 0, 
+    enabled: watchlist.length > 0,
   });
 
   const openDialog = (anime: Anime) => {
@@ -63,6 +67,16 @@ function Index() {
   const closeDialog = () => {
     setAnimeInfo(null);
     setIsDialogOpen(false);
+  };
+
+  const openEditDialog = (watchlistItem: Watchlist) => {
+    setSelectedWatchlistItem(watchlistItem);
+    setIsEditDialogOpen(true);
+  };
+
+  const closeEditDialog = () => {
+    setSelectedWatchlistItem(null);
+    setIsEditDialogOpen(false);
   };
 
   const removeFromWatchlist = (id: number) => {
@@ -88,6 +102,7 @@ function Index() {
                 anime={anime}
                 onRemove={removeFromWatchlist}
                 onOpenDialog={openDialog}
+                onEdit={() => openEditDialog(anime)}
               />
             ))}
           </div>
@@ -106,8 +121,12 @@ function Index() {
         onClose={closeDialog}
         onAddToWatchlist={() => console.log("Added to Watchlist")}
       />
+      <EditAnimeDialog
+        isOpen={isEditDialogOpen}
+        onClose={closeEditDialog}
+      />
     </div>
   );
-};
+}
 
-
+export default Index;

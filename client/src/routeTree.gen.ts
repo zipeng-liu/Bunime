@@ -13,7 +13,6 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as SearchImport } from './routes/search'
 import { Route as PopularImport } from './routes/popular'
-import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
@@ -27,12 +26,6 @@ const SearchRoute = SearchImport.update({
 const PopularRoute = PopularImport.update({
   id: '/popular',
   path: '/popular',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const AboutRoute = AboutImport.update({
-  id: '/about',
-  path: '/about',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -51,13 +44,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutImport
       parentRoute: typeof rootRoute
     }
     '/popular': {
@@ -81,14 +67,12 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/popular': typeof PopularRoute
   '/search': typeof SearchRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/popular': typeof PopularRoute
   '/search': typeof SearchRoute
 }
@@ -96,30 +80,27 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/popular': typeof PopularRoute
   '/search': typeof SearchRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/popular' | '/search'
+  fullPaths: '/' | '/popular' | '/search'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/popular' | '/search'
-  id: '__root__' | '/' | '/about' | '/popular' | '/search'
+  to: '/' | '/popular' | '/search'
+  id: '__root__' | '/' | '/popular' | '/search'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AboutRoute: typeof AboutRoute
   PopularRoute: typeof PopularRoute
   SearchRoute: typeof SearchRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AboutRoute: AboutRoute,
   PopularRoute: PopularRoute,
   SearchRoute: SearchRoute,
 }
@@ -135,16 +116,12 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/about",
         "/popular",
         "/search"
       ]
     },
     "/": {
       "filePath": "index.tsx"
-    },
-    "/about": {
-      "filePath": "about.tsx"
     },
     "/popular": {
       "filePath": "popular.tsx"

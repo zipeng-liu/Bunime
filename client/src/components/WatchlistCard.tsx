@@ -7,9 +7,10 @@ type WatchlistCardProps = {
   anime: Anime & Watchlist;
   onRemove: (id: number) => void;
   onOpenDialog: (anime: Anime & Watchlist) => void;
+  onEdit: (anime: Anime & Watchlist) => void;
 };
 
-export const WatchlistCard: React.FC<WatchlistCardProps> = ({ anime, onRemove, onOpenDialog }) => {
+export const WatchlistCard: React.FC<WatchlistCardProps> = ({ anime, onRemove, onOpenDialog, onEdit }) => {
   return (
     <Card className="p-4 flex flex-col justify-between bg-gray-800 rounded-lg shadow-lg">
       <img
@@ -20,10 +21,10 @@ export const WatchlistCard: React.FC<WatchlistCardProps> = ({ anime, onRemove, o
       <h3 className="font-semibold text-lg text-white text-center mb-3">{anime.title}</h3>
       <div className="bg-gray-700 p-3 rounded-lg text-white mb-3">
         <p className="text-sm mb-2">
-          <strong>Status:</strong> {anime.status}
+          <strong>Type:</strong> {anime.type}
         </p>
         <p className="text-sm mb-2">
-          <strong>Type:</strong> {anime.type}
+          <strong>Status:</strong> {anime.status}
         </p>
         <p className="text-sm">
           <strong>Progress:</strong> {anime.progress || "Not Started"}
@@ -36,7 +37,7 @@ export const WatchlistCard: React.FC<WatchlistCardProps> = ({ anime, onRemove, o
         <Button variant="outline" className="text-white" onClick={() => onOpenDialog(anime)}>
           Info
         </Button>
-        <Button variant="outline" className="text-white" onClick={() => console.log("Edit Placeholder")}>
+        <Button variant="outline" className="text-white" onClick={() => onEdit(anime)}>
           Edit
         </Button>
       </div>
