@@ -1,14 +1,15 @@
-import { createFileRoute } from '@tanstack/react-router'
+// src/pages/RouteComponent.tsx
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { Card } from "../components/ui/card";
 import { AnimeDialog } from "../components/AnimeDialog";
+import { AnimeCard } from "../components/AnimeCard";
 import { Anime } from "@/types/anime";
 
-export const Route = createFileRoute('/search')({
+export const Route = createFileRoute("/search")({
   component: RouteComponent,
-})
+});
 
 function RouteComponent() {
   const [search, setSearch] = useState<string>(""); // User search input
@@ -23,7 +24,9 @@ function RouteComponent() {
     if (!search.trim()) return; // Prevent empty searches
     try {
       setIsLoading(true); // Start loading
-      const res = await fetch(`https://api.jikan.moe/v4/anime?q=${search}&limit=25`);
+      const res = await fetch(
+        `https://api.jikan.moe/v4/anime?q=${search}&limit=25`
+      );
       const data = await res.json();
       setAnimeData(data.data || []);
       setHasSearched(true); // Mark that a search has been performed
@@ -78,35 +81,12 @@ function RouteComponent() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {animeData.length > 0 ? (
               animeData.map((anime) => (
-                <Card
+                <AnimeCard
                   key={anime.mal_id}
-                  className="p-4 flex flex-col justify-between bg-gray-800 rounded-lg shadow-lg"
-                >
-                  <img
-                    src={anime.images.jpg.image_url}
-                    alt={anime.title}
-                    className="w-full h-full object-cover rounded-lg mb-3"
-                  />
-                  <h3 className="font-semibold text-lg text-white text-center mb-3">
-                    {anime.title}
-                  </h3>
-                  <div className="flex justify-between mt-3">
-                    <Button
-                      variant="outline"
-                      className="text-white"
-                      onClick={() => console.log("Add to Watchlist")}
-                    >
-                      Add to Watchlist
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="text-white"
-                      onClick={() => openDialog(anime)}
-                    >
-                      Info
-                    </Button>
-                  </div>
-                </Card>
+                  anime={anime}
+                  onAddToWatchlist={() => console.log("Add to Watchlist")}
+                  onInfo={() => openDialog(anime)}
+                />
               ))
             ) : hasSearched ? (
               <div className="flex justify-center items-center col-span-full h-[50vh]">
@@ -134,7 +114,8 @@ function RouteComponent() {
       />
     </div>
   );
-};
+}
 
 export default RouteComponent;
+
 
