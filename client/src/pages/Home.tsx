@@ -1,73 +1,48 @@
-import { useEffect, useState } from "react";
-import { Navbar } from "@/components/Navbar";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { AnimeDialog } from "@/components/AnimeDialog";
+// src/pages/Home.tsx
 
-// Jikan API anime type
-type Anime = {
-  mal_id: number;
-  images: {
-    jpg: {
-      image_url: string;
-      large_image_url: string;
-    };
-  };
-  title: string;
-  source: string;
-  rank: number;
-  score: number;
-  popularity: number;
-  members: number;
-  status: string;
-  rating: string;
-  duration: string;
-  type: string;
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Navbar } from "@/components/Navbar";
+import WatchlistCard from "@/components/WatchlistCard";
+import { AnimeDialog } from "@/components/AnimeDialog";
+import { Anime } from "@/types/anime";
+import { WatchlistItem } from "@/types/watchlist";
+
+// Fetch watchlist data
+const fetchWatchlist = async (userId: number): Promise<WatchlistItem[]> => {
+  const res = await fetch(`/api/watchlist?user_id=${userId}`);
+  const data = await res.json();
+  return data.watchlist;
 };
 
-type WatchlistItem = {
-  id: number;
-  user_id: number;
-  anime_id: number;
-  status: "Not Started" | "In Progress" | "Completed" | "Paused";
-  type: "TV" | "Movie" | "OVA" | "ONA" | "Special";
-  progress: string | null;
+// Fetch anime details by ID
+const fetchAnimeDetails = async (animeId: number): Promise<Anime> => {
+  const res = await fetch(`https://api.jikan.moe/v4/anime/${animeId}`);
+  const data = await res.json();
+  return data.data;
 };
 
 const Home = () => {
-  const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
-  const [animeData, setAnimeData] = useState<(Anime & WatchlistItem)[]>([]);
   const [animeInfo, setAnimeInfo] = useState<Anime | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const fetchWatchlist = async () => {
-    try {
-      const res = await fetch("/api/watchlist?user_id=1");
-      const data = await res.json();
-      console.log("Fetched watchlist:", data);
-      setWatchlist(data.watchlist); // Correctly set the watchlist array
-    } catch (error) {
-      console.error("Error fetching watchlist:", error);
-    }
-  };
+  // Fetch watchlist using TanStack Query
+  const { data: watchlist = [], isLoading: isWatchlistLoading } = useQuery({
+    queryKey: ["watchlist", 1], // Replace `1` with dynamic user ID if needed
+    queryFn: () => fetchWatchlist(1),
+  });
 
-  const fetchAnimeDetails = async () => {
-    try {
+  // Fetch anime details for all watchlist items
+  const { data: animeData = [], isLoading: isAnimeLoading } = useQuery({
+    queryKey: ["animeDetails", watchlist],
+    queryFn: async () => {
       const animeDetails = await Promise.all(
-        watchlist.map(async (item) => {
-          console.log("Fetching anime details for ID:", item.anime_id);
-          const res = await fetch(`https://api.jikan.moe/v4/anime/${item.anime_id}`);
-          const data = await res.json();
-          console.log("Fetched details:", data.data);
-          return { ...data.data, ...item };
-        })
+        watchlist.map((item) => fetchAnimeDetails(item.anime_id).then((anime) => ({ ...anime, ...item })))
       );
-      console.log("Final anime details:", animeDetails);
-      setAnimeData(animeDetails);
-    } catch (error) {
-      console.error("Error fetching anime details:", error);
-    }
-  };
+      return animeDetails;
+    },
+    enabled: watchlist.length > 0, // Only run when watchlist is loaded
+  });
 
   const openDialog = (anime: Anime) => {
     setAnimeInfo(anime);
@@ -80,20 +55,12 @@ const Home = () => {
   };
 
   const removeFromWatchlist = (id: number) => {
-    setAnimeData(animeData.filter((anime) => anime.id !== id));
+    console.log("Remove item:", id);
   };
 
-  useEffect(() => {
-    fetchWatchlist();
-  }, []);
-
-  useEffect(() => {
-    console.log("Watchlist state:", watchlist);
-    if (watchlist.length > 0) {
-      console.log("Watchlist is ready, fetching anime details...");
-      fetchAnimeDetails();
-    }
-  }, [watchlist]);
+  if (isWatchlistLoading || isAnimeLoading) {
+    return <p className="text-center text-muted-foreground">Loading...</p>;
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -103,37 +70,12 @@ const Home = () => {
         {animeData.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {animeData.map((anime) => (
-              <Card key={anime.mal_id} className="p-4 flex flex-col justify-between bg-gray-800 rounded-lg shadow-lg">
-              <img
-                src={anime.images.jpg.image_url}
-                alt={anime.title}
-                className="w-full h-full object-cover rounded-lg mb-3"
+              <WatchlistCard
+                key={anime.mal_id}
+                anime={anime}
+                onRemove={removeFromWatchlist}
+                onOpenDialog={openDialog}
               />
-              <h3 className="font-semibold text-lg text-white text-center mb-3">{anime.title}</h3>
-              <div className="bg-gray-700 p-3 rounded-lg text-white mb-3">
-                <p className="text-sm mb-2">
-                  <strong>Status:</strong> {anime.status}
-                </p>
-                <p className="text-sm mb-2">
-                  <strong>Type:</strong> {anime.type}
-                </p>
-                <p className="text-sm">
-                  <strong>Progress:</strong> {anime.progress || "Not Started"}
-                </p>
-              </div>
-              <div className="flex justify-between mt-3">
-                <Button variant="outline" className="text-white" onClick={() => removeFromWatchlist(anime.id)}>
-                  Remove
-                </Button>
-                <Button variant="outline" className="text-white" onClick={() => openDialog(anime)}>
-                  Info
-                </Button>
-                <Button variant="outline" className="text-white" onClick={() => console.log("Edit Placeholder")}>
-                  Edit
-                </Button>
-              </div>
-            </Card>
-            
             ))}
           </div>
         ) : (
