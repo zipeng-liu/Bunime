@@ -1,60 +1,60 @@
 // src/pages/RouteComponent.tsx
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { AnimeDialog } from "../components/AnimeDialog";
-import { AnimeCard } from "../components/AnimeCard";
-import { Anime } from "@/types/anime";
+import { createFileRoute } from '@tanstack/react-router'
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { AnimeDialog } from '@/components/AnimeDialog'
+import { AnimeCard } from '@/components/AnimeCard'
+import { Anime } from '@/types/anime'
 
-export const Route = createFileRoute("/search")({
+export const Route = createFileRoute('/_authenticated/search')({
   component: RouteComponent,
-});
+})
 
 function RouteComponent() {
-  const [search, setSearch] = useState<string>(""); // User search input
-  const [animeData, setAnimeData] = useState<Anime[]>([]); // Anime search results
-  const [animeInfo, setAnimeInfo] = useState<Anime | null>(null); // Anime details for dialog
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false); // Dialog open state
-  const [hasSearched, setHasSearched] = useState<boolean>(false); // Tracks if the user has searched
-  const [isLoading, setIsLoading] = useState<boolean>(false); // Loading state
+  const [search, setSearch] = useState<string>('') // User search input
+  const [animeData, setAnimeData] = useState<Anime[]>([]) // Anime search results
+  const [animeInfo, setAnimeInfo] = useState<Anime | null>(null) // Anime details for dialog
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false) // Dialog open state
+  const [hasSearched, setHasSearched] = useState<boolean>(false) // Tracks if the user has searched
+  const [isLoading, setIsLoading] = useState<boolean>(false) // Loading state
 
   // Fetch anime data from the API
   const getAnimeData = async () => {
-    if (!search.trim()) return; // Prevent empty searches
+    if (!search.trim()) return // Prevent empty searches
     try {
-      setIsLoading(true); // Start loading
+      setIsLoading(true) // Start loading
       const res = await fetch(
-        `https://api.jikan.moe/v4/anime?q=${search}&limit=25`
-      );
-      const data = await res.json();
-      setAnimeData(data.data || []);
-      setHasSearched(true); // Mark that a search has been performed
+        `https://api.jikan.moe/v4/anime?q=${search}&limit=25`,
+      )
+      const data = await res.json()
+      setAnimeData(data.data || [])
+      setHasSearched(true) // Mark that a search has been performed
     } catch (error) {
-      console.error("Error fetching anime data:", error);
+      console.error('Error fetching anime data:', error)
     } finally {
-      setIsLoading(false); // Stop loading
+      setIsLoading(false) // Stop loading
     }
-  };
+  }
 
   // Open the AnimeDialog
   const openDialog = (anime: Anime) => {
-    setAnimeInfo(anime);
-    setIsDialogOpen(true);
-  };
+    setAnimeInfo(anime)
+    setIsDialogOpen(true)
+  }
 
   // Close the AnimeDialog
   const closeDialog = () => {
-    setAnimeInfo(null);
-    setIsDialogOpen(false);
-  };
+    setAnimeInfo(null)
+    setIsDialogOpen(false)
+  }
 
   // Clear search results
   const clearResults = () => {
-    setAnimeData([]);
-    setSearch("");
-    setHasSearched(false); // Reset the search state
-  };
+    setAnimeData([])
+    setSearch('')
+    setHasSearched(false) // Reset the search state
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -84,7 +84,7 @@ function RouteComponent() {
                 <AnimeCard
                   key={anime.mal_id}
                   anime={anime}
-                  onAddToWatchlist={() => console.log("Add to Watchlist")}
+                  onAddToWatchlist={() => console.log('Add to Watchlist')}
                   onInfo={() => openDialog(anime)}
                 />
               ))
@@ -110,12 +110,10 @@ function RouteComponent() {
         animeInfo={animeInfo}
         isOpen={isDialogOpen}
         onClose={closeDialog}
-        onAddToWatchlist={() => console.log("Added to Watchlist")}
+        onAddToWatchlist={() => console.log('Added to Watchlist')}
       />
     </div>
-  );
+  )
 }
 
-export default RouteComponent;
-
-
+export default RouteComponent

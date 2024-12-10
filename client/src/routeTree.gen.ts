@@ -11,98 +11,150 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as SearchImport } from './routes/search'
-import { Route as PopularImport } from './routes/popular'
-import { Route as IndexImport } from './routes/index'
+import { Route as AuthenticatedImport } from './routes/_authenticated'
+import { Route as AuthenticatedIndexImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedSearchImport } from './routes/_authenticated/search'
+import { Route as AuthenticatedProfileImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedPopularImport } from './routes/_authenticated/popular'
 
 // Create/Update Routes
 
-const SearchRoute = SearchImport.update({
-  id: '/search',
-  path: '/search',
+const AuthenticatedRoute = AuthenticatedImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRoute,
 } as any)
 
-const PopularRoute = PopularImport.update({
-  id: '/popular',
-  path: '/popular',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const IndexRoute = IndexImport.update({
+const AuthenticatedIndexRoute = AuthenticatedIndexImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+
+const AuthenticatedSearchRoute = AuthenticatedSearchImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+
+const AuthenticatedProfileRoute = AuthenticatedProfileImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+
+const AuthenticatedPopularRoute = AuthenticatedPopularImport.update({
+  id: '/popular',
+  path: '/popular',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthenticatedImport
       parentRoute: typeof rootRoute
     }
-    '/popular': {
-      id: '/popular'
+    '/_authenticated/popular': {
+      id: '/_authenticated/popular'
       path: '/popular'
       fullPath: '/popular'
-      preLoaderRoute: typeof PopularImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthenticatedPopularImport
+      parentRoute: typeof AuthenticatedImport
     }
-    '/search': {
-      id: '/search'
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileImport
+      parentRoute: typeof AuthenticatedImport
+    }
+    '/_authenticated/search': {
+      id: '/_authenticated/search'
       path: '/search'
       fullPath: '/search'
-      preLoaderRoute: typeof SearchImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthenticatedSearchImport
+      parentRoute: typeof AuthenticatedImport
+    }
+    '/_authenticated/': {
+      id: '/_authenticated/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedIndexImport
+      parentRoute: typeof AuthenticatedImport
     }
   }
 }
 
 // Create and export the route tree
 
+interface AuthenticatedRouteChildren {
+  AuthenticatedPopularRoute: typeof AuthenticatedPopularRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedPopularRoute: AuthenticatedPopularRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedSearchRoute: AuthenticatedSearchRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/popular': typeof PopularRoute
-  '/search': typeof SearchRoute
+  '': typeof AuthenticatedRouteWithChildren
+  '/popular': typeof AuthenticatedPopularRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/search': typeof AuthenticatedSearchRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/popular': typeof PopularRoute
-  '/search': typeof SearchRoute
+  '/popular': typeof AuthenticatedPopularRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/search': typeof AuthenticatedSearchRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/': typeof IndexRoute
-  '/popular': typeof PopularRoute
-  '/search': typeof SearchRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/_authenticated/popular': typeof AuthenticatedPopularRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/search': typeof AuthenticatedSearchRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/popular' | '/search'
+  fullPaths: '' | '/popular' | '/profile' | '/search' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/popular' | '/search'
-  id: '__root__' | '/' | '/popular' | '/search'
+  to: '/popular' | '/profile' | '/search' | '/'
+  id:
+    | '__root__'
+    | '/_authenticated'
+    | '/_authenticated/popular'
+    | '/_authenticated/profile'
+    | '/_authenticated/search'
+    | '/_authenticated/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  PopularRoute: typeof PopularRoute
-  SearchRoute: typeof SearchRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  PopularRoute: PopularRoute,
-  SearchRoute: SearchRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
 }
 
 export const routeTree = rootRoute
@@ -115,19 +167,33 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/",
-        "/popular",
-        "/search"
+        "/_authenticated"
       ]
     },
-    "/": {
-      "filePath": "index.tsx"
+    "/_authenticated": {
+      "filePath": "_authenticated.tsx",
+      "children": [
+        "/_authenticated/popular",
+        "/_authenticated/profile",
+        "/_authenticated/search",
+        "/_authenticated/"
+      ]
     },
-    "/popular": {
-      "filePath": "popular.tsx"
+    "/_authenticated/popular": {
+      "filePath": "_authenticated/popular.tsx",
+      "parent": "/_authenticated"
     },
-    "/search": {
-      "filePath": "search.tsx"
+    "/_authenticated/profile": {
+      "filePath": "_authenticated/profile.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/search": {
+      "filePath": "_authenticated/search.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/": {
+      "filePath": "_authenticated/index.tsx",
+      "parent": "/_authenticated"
     }
   }
 }
