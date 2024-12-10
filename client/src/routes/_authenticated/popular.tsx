@@ -1,51 +1,51 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
-import { AnimeDialog } from "../components/AnimeDialog";
-import { AnimeCard } from "../components/AnimeCard";
-import { Anime } from "@/types/anime";
+import { createFileRoute } from '@tanstack/react-router'
+import { useState, useEffect } from 'react'
+import { AnimeDialog } from '@/components/AnimeDialog'
+import { AnimeCard } from '@/components/AnimeCard'
+import { Anime } from '@/types/anime'
 
-export const Route = createFileRoute("/popular")({
+export const Route = createFileRoute('/_authenticated/popular')({
   component: RouteComponent,
-});
+})
 
 function RouteComponent() {
-  const [popularAnimes, setPopularAnimes] = useState<Anime[]>([]); // Store popular animes
-  const [animeInfo, setAnimeInfo] = useState<Anime | null>(null); // Store selected anime info
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false); // Dialog open state
-  const [isLoading, setIsLoading] = useState<boolean>(true); // Loading state
+  const [popularAnimes, setPopularAnimes] = useState<Anime[]>([]) // Store popular animes
+  const [animeInfo, setAnimeInfo] = useState<Anime | null>(null) // Store selected anime info
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false) // Dialog open state
+  const [isLoading, setIsLoading] = useState<boolean>(true) // Loading state
 
   // Fetch popular animes
   const getPopularAnimes = async () => {
     try {
-      setIsLoading(true); // Set loading to true before fetching
+      setIsLoading(true) // Set loading to true before fetching
       const res = await fetch(
-        `https://api.jikan.moe/v4/anime?order_by=popularity&sort=asc&limit=20`
-      );
-      const data = await res.json();
-      setPopularAnimes(data.data || []);
+        `https://api.jikan.moe/v4/anime?order_by=popularity&sort=asc&limit=20`,
+      )
+      const data = await res.json()
+      setPopularAnimes(data.data || [])
     } catch (error) {
-      console.error("Error fetching popular animes:", error);
+      console.error('Error fetching popular animes:', error)
     } finally {
-      setIsLoading(false); // Set loading to false after fetching
+      setIsLoading(false) // Set loading to false after fetching
     }
-  };
+  }
 
   // Open AnimeDialog
   const openDialog = (anime: Anime) => {
-    setAnimeInfo(anime);
-    setIsDialogOpen(true);
-  };
+    setAnimeInfo(anime)
+    setIsDialogOpen(true)
+  }
 
   // Close AnimeDialog
   const closeDialog = () => {
-    setAnimeInfo(null);
-    setIsDialogOpen(false);
-  };
+    setAnimeInfo(null)
+    setIsDialogOpen(false)
+  }
 
   // Fetch popular animes on component load
   useEffect(() => {
-    getPopularAnimes();
-  }, []);
+    getPopularAnimes()
+  }, [])
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -62,7 +62,7 @@ function RouteComponent() {
               <AnimeCard
                 key={anime.mal_id}
                 anime={anime}
-                onAddToWatchlist={() => console.log("Add to Watchlist")}
+                onAddToWatchlist={() => console.log('Add to Watchlist')}
                 onInfo={() => openDialog(anime)}
               />
             ))}
@@ -75,10 +75,10 @@ function RouteComponent() {
         animeInfo={animeInfo}
         isOpen={isDialogOpen}
         onClose={closeDialog}
-        onAddToWatchlist={() => console.log("Added to Watchlist")}
+        onAddToWatchlist={() => console.log('Added to Watchlist')}
       />
     </div>
-  );
+  )
 }
 
-export default RouteComponent;
+export default RouteComponent
