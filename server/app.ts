@@ -11,7 +11,7 @@ app.use("*", logger());
 const apiRoutes = app
   .basePath("/api")
   .route("/watchlist", watchlistRoute)
-  .route("/auth", authRoute);
+  .route("/", authRoute);
 
 app.get("*", serveStatic({ root: "./client/dist" }));
 app.get("*", serveStatic({ path: "./client/dist/index.html" }));
