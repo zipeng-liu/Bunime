@@ -1,87 +1,87 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { WatchlistCard } from "@/components/WatchlistCard";
-import { AnimeDialog } from "@/components/AnimeDialog";
-import { EditAnimeDialog } from "@/components/EditAnimeDialog"; // Import the EditDialog component
-import { Anime } from "@/types/anime";
-import { Watchlist } from "@server/types/watchlist";
-import { api } from "@/lib/api";
+import { createFileRoute } from '@tanstack/react-router'
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { WatchlistCard } from '@/components/WatchlistCard'
+import { AnimeDialog } from '@/components/AnimeDialog'
+import { EditAnimeDialog } from '@/components/EditAnimeDialog' // Import the EditDialog component
+import { Anime } from '@/types/anime'
+import { Watchlist } from '@server/types/watchlist'
+import { api } from '@/lib/api'
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute('/_authenticated/')({
   component: Index,
-});
+})
 
 // Fetch watchlist data
 const fetchWatchlist = async (userId: number): Promise<Watchlist[]> => {
-  const res = await api.watchlist.$get({ query: { user_id: userId } });
+  const res = await api.watchlist.$get({ query: { user_id: userId } })
   if (!res.ok) {
-    throw new Error("Server error");
+    throw new Error('Server error')
   }
-  const data = await res.json();
-  return data.watchlist;
-};
+  const data = await res.json()
+  return data.watchlist
+}
 
 // Fetch anime details by ID
 const fetchAnimeDetails = async (animeId: number): Promise<Anime> => {
-  const res = await fetch(`https://api.jikan.moe/v4/anime/${animeId}`);
-  const data = await res.json();
-  return data.data;
-};
+  const res = await fetch(`https://api.jikan.moe/v4/anime/${animeId}`)
+  const data = await res.json()
+  return data.data
+}
 
 function Index() {
-  const [animeInfo, setAnimeInfo] = useState<Anime | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false); // State for EditDialog
+  const [animeInfo, setAnimeInfo] = useState<Anime | null>(null)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false) // State for EditDialog
   const [selectedWatchlistItem, setSelectedWatchlistItem] =
-    useState<Watchlist | null>(null); // Selected watchlist item to edit
+    useState<Watchlist | null>(null) // Selected watchlist item to edit
 
   // Fetch watchlist using TanStack Query
   const { data: watchlist = [], isLoading: isWatchlistLoading } = useQuery({
-    queryKey: ["watchlist", 1], // Replace `1` with dynamic user ID if needed
+    queryKey: ['watchlist', 1], // Replace `1` with dynamic user ID if needed
     queryFn: () => fetchWatchlist(1),
-  });
+  })
 
   // Fetch anime details for all watchlist items
   const { data: animeData = [], isLoading: isAnimeLoading } = useQuery({
-    queryKey: ["animeDetails", watchlist],
+    queryKey: ['animeDetails', watchlist],
     queryFn: async () => {
       const animeDetails = await Promise.all(
         watchlist.map((item) =>
           fetchAnimeDetails(item.anime_id).then((anime) => ({
             ...anime,
             ...item,
-          }))
-        )
-      );
-      return animeDetails;
+          })),
+        ),
+      )
+      return animeDetails
     },
     enabled: watchlist.length > 0,
-  });
+  })
 
   const openDialog = (anime: Anime) => {
-    setAnimeInfo(anime);
-    setIsDialogOpen(true);
-  };
+    setAnimeInfo(anime)
+    setIsDialogOpen(true)
+  }
 
   const closeDialog = () => {
-    setAnimeInfo(null);
-    setIsDialogOpen(false);
-  };
+    setAnimeInfo(null)
+    setIsDialogOpen(false)
+  }
 
   const openEditDialog = (watchlistItem: Watchlist) => {
-    setSelectedWatchlistItem(watchlistItem);
-    setIsEditDialogOpen(true);
-  };
+    setSelectedWatchlistItem(watchlistItem)
+    setIsEditDialogOpen(true)
+  }
 
   const closeEditDialog = () => {
-    setSelectedWatchlistItem(null);
-    setIsEditDialogOpen(false);
-  };
+    setSelectedWatchlistItem(null)
+    setIsEditDialogOpen(false)
+  }
 
   const removeFromWatchlist = (id: number) => {
-    console.log("Remove item:", id);
-  };
+    console.log('Remove item:', id)
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -104,9 +104,9 @@ function Index() {
                 onOpenDialog={openDialog}
                 onEdit={() => {
                   const watchlistItem = watchlist.find(
-                    (item) => item.anime_id === anime.mal_id
-                  );
-                  if (watchlistItem) openEditDialog(watchlistItem);
+                    (item) => item.anime_id === anime.mal_id,
+                  )
+                  if (watchlistItem) openEditDialog(watchlistItem)
                 }}
               />
             ))}
@@ -124,21 +124,21 @@ function Index() {
         animeInfo={animeInfo}
         isOpen={isDialogOpen}
         onClose={closeDialog}
-        onAddToWatchlist={() => console.log("Added to Watchlist")}
+        onAddToWatchlist={() => console.log('Added to Watchlist')}
       />
       <EditAnimeDialog
         isOpen={isEditDialogOpen}
         onClose={closeEditDialog}
         onSubmit={(formData) => {
-          console.log("Updated data:", {
+          console.log('Updated data:', {
             ...selectedWatchlistItem,
             ...formData,
-          });
-          closeEditDialog();
+          })
+          closeEditDialog()
         }}
       />
     </div>
-  );
+  )
 }
 
-export default Index;
+export default Index

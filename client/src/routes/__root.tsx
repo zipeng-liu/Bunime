@@ -1,8 +1,13 @@
-import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
+import { createRootRouteWithContext, Link, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { Button } from "@/components/ui/button"; 
+import { type QueryClient } from "@tanstack/react-query";
 
-export const Route = createRootRoute({
+interface MyRouterContext {
+  queryClient: QueryClient
+}
+
+export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: () => (
     <>
       {/* Navbar */}
@@ -20,6 +25,9 @@ export const Route = createRootRoute({
             </Button>
             <Button variant="ghost" asChild>
               <Link to="/search">Search</Link>
+            </Button>
+            <Button variant="ghost" asChild>
+              <Link to="/profile">Profile</Link>
             </Button>
           </div>
         </div>

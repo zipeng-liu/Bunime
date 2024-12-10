@@ -1,11 +1,13 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { addWatchlistSchema, updateWatchlistSchema } from "../types/watchlist";
+import { getUser } from "../kinde";
 import { fakeWatchlist } from "../db/fakeDb";
 
 export const watchlistRoute = new Hono()
   // GET watchlist items for a specific user
-  .get("/", (c) => {
+  .get("/", getUser, (c) => {
+    const user = c.var.user
     const userId = c.req.query("user_id");
 
     const userWatchlist = fakeWatchlist.filter(
@@ -18,6 +20,7 @@ export const watchlistRoute = new Hono()
   // POST: Update watchlist item status and progress
   .post(
     "/:id{[0-9]+}/update",
+    getUser,
     zValidator("json", updateWatchlistSchema),
     async (c) => {
       const id = Number.parseInt(c.req.param("id"));
