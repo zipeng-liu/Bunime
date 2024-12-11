@@ -3,41 +3,32 @@ import { zValidator } from "@hono/zod-validator";
 import { addWatchlistSchema, updateWatchlistSchema } from "../types/watchlist";
 import { getUser } from "../kinde";
 import { fakeWatchlist } from "../db/fakeDb";
+import { db } from "../db";
+import { watchlist as watchlistTable } from "../db/schema/watchlist";
+import { eq } from "drizzle-orm";
 
 export const watchlistRoute = new Hono()
   // GET watchlist items for a specific user
-  .get("/", getUser, (c) => {
-    const user = c.var.user
-    const userId = c.req.query("user_id");
-
-    const userWatchlist = fakeWatchlist.filter(
-      (item) => item.user_id === Number(userId)
-    );
-
-    return c.json({ watchlist: userWatchlist }, 200);
+  .get("/", getUser, async (c) => {
+    const user = c.var.user;
+    const watchlist = await db
+      .select()
+      .from(watchlistTable)
+      .where(eq(watchlistTable.user_id, user.id));
+    return c.json({ watchlist: watchlist }, 200);
   })
 
-  // POST: Update watchlist item status and progress
-  .post(
-    "/:id{[0-9]+}/update",
-    getUser,
-    zValidator("json", updateWatchlistSchema),
-    async (c) => {
-      const id = Number.parseInt(c.req.param("id"));
-      const updateData = await c.req.valid("json");
-
-      const watchlistItem = fakeWatchlist.find((item) => item.id === id);
-      if (!watchlistItem) {
-        return c.notFound();
-      }
-
-      // Update the status and progress fields
-      watchlistItem.status = updateData.status;
-      if (updateData.progress) {
-        watchlistItem.progress = updateData.progress;
-      }
-
-      // Return a success message
-      return c.json({ message: "Watchlist item updated successfully." }, 204);
-    }
-  );
+  // POST: Add a new watchlist item
+  .post("/", getUser, zValidator("json", addWatchlistSchema), async (c) => {
+    const user = c.var.user;
+    const watchlistData = await c.req.valid("json"); 
+    const newWatchlistItem = {
+      user_id: user.id, 
+      anime_id: watchlistData.anime_id,
+      status: watchlistData.status || "Not Started", 
+      progress: watchlistData.progress || null, 
+      type: watchlistData.type,
+    };
+    await db.insert(watchlistTable).values(newWatchlistItem);
+    return c.json({ message: "Watchlist item added successfully" }, 201);
+  });
