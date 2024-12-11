@@ -92,6 +92,10 @@ function RouteComponent() {
     return <p className="text-center text-muted-foreground">Loading user data...</p>;
   }
 
+  if (isAdding) {
+    return <p className="text-center text-muted-foreground">Adding watchlist...</p>;
+  }
+
   if (userError) {
     return <p className="text-center text-muted-foreground">User not logged in</p>;
   }
